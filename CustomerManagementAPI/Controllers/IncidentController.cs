@@ -12,7 +12,7 @@ namespace CustomerManagementAPI.Controllers
     public class IncidentController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-        private readonly IMapper _mapper;   
+        private readonly IMapper _mapper;
 
         public IncidentController(ApplicationDbContext context, IMapper mapper)
         {
@@ -23,8 +23,15 @@ namespace CustomerManagementAPI.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PostIncident(IncidentCreateDTO request)
         {
+            // Check if request is valid
+            if (string.IsNullOrWhiteSpace(request.IncidentDescription))
+            {
+                return BadRequest("Incident description is required.");
+            }
+
             var account = await _context.Accounts
                 .Include(a => a.Contacts)
                 .FirstOrDefaultAsync(a => a.Name == request.AccountName);
@@ -75,6 +82,8 @@ namespace CustomerManagementAPI.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetAllIncidents()
         {
             var incidents = await _context.Incidents
@@ -83,11 +92,12 @@ namespace CustomerManagementAPI.Controllers
                 .ToListAsync();
 
             var incidentsDto = _mapper.Map<List<IncidentDTO>>(incidents);
-
             return Ok(incidentsDto);
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IncidentDTO>> GetIncident(string id)
         {
             var incident = await _context.Incidents
@@ -132,6 +142,31 @@ namespace CustomerManagementAPI.Controllers
             return NoContent();
         }
 
+        [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UpdateIncident(string id, UpdateIncidentDTO request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Description))
+            {
+                return BadRequest("Description cannot be empty.");
+            }
+
+            var incident = await _context.Incidents
+                .FirstOrDefaultAsync(i => i.IncidentName == id);
+
+            if (incident == null)
+            {
+                return NotFound("Incident not found.");
+            }
+
+            incident.Description = request.Description;
+
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
 
         private string GenerateIncidentName()
         {
@@ -139,4 +174,3 @@ namespace CustomerManagementAPI.Controllers
         }
     }
 }
-

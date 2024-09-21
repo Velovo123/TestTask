@@ -21,6 +21,7 @@ namespace CustomerManagementAPI.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllContacts()
         {
             var contacts = await _context.Contacts
@@ -32,6 +33,8 @@ namespace CustomerManagementAPI.Controllers
         }
 
         [HttpGet("{email}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetContact(string email)
         {
             var contact = await _context.Contacts
@@ -76,6 +79,8 @@ namespace CustomerManagementAPI.Controllers
         }
 
         [HttpDelete("{email}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteContact(string email)
         {
             var contact = await _context.Contacts
@@ -98,11 +103,38 @@ namespace CustomerManagementAPI.Controllers
             if (!hasContacts && accountName != null)
             {
                 return RedirectToAction(
-                    actionName: "DeleteAccount",    
-                    controllerName: "Account",      
-                    routeValues: new { name = accountName } 
+                    actionName: "DeleteAccount",
+                    controllerName: "Account",
+                    routeValues: new { name = accountName }
                 );
             }
+
+            return NoContent();
+        }
+
+        [HttpPut("{email}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UpdateContact(string email, UpdateContactDTO request)
+        {
+            if (string.IsNullOrWhiteSpace(request.FirstName) || string.IsNullOrWhiteSpace(request.LastName))
+            {
+                return BadRequest("First name and last name cannot be empty.");
+            }
+
+            var contact = await _context.Contacts
+                .FirstOrDefaultAsync(c => c.Email == email);
+
+            if (contact == null)
+            {
+                return NotFound("Contact not found.");
+            }
+
+            contact.FirstName = request.FirstName;
+            contact.LastName = request.LastName;
+
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }

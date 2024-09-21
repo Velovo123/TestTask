@@ -13,6 +13,7 @@ namespace CustomerManagementAPI.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
+
         public AccountController(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
@@ -20,6 +21,7 @@ namespace CustomerManagementAPI.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllAccounts()
         {
             var accounts = await _context.Accounts
@@ -28,11 +30,12 @@ namespace CustomerManagementAPI.Controllers
                 .ToListAsync();
 
             var accountsDto = _mapper.Map<List<AccountDTO>>(accounts);
-
             return Ok(accountsDto);
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetAccount(string id)
         {
             var account = await _context.Accounts
@@ -61,13 +64,12 @@ namespace CustomerManagementAPI.Controllers
             }
 
             var existingAccount = await _context.Accounts
-                    .FirstOrDefaultAsync(a => a.Name == request.Name);
+                .FirstOrDefaultAsync(a => a.Name == request.Name);
 
             if (existingAccount != null)
             {
                 return Conflict($"An account with the name '{request.Name}' already exists.");
             }
-
 
             var account = new Account { Name = request.Name };
             _context.Accounts.Add(account);
@@ -93,7 +95,7 @@ namespace CustomerManagementAPI.Controllers
                         existingContact.LastName = contactDto.LastName;
                     }
 
-                    existingContact.Account = account; 
+                    existingContact.Account = account;
                 }
                 else
                 {
@@ -102,7 +104,7 @@ namespace CustomerManagementAPI.Controllers
                         FirstName = contactDto.FirstName,
                         LastName = contactDto.LastName,
                         Email = contactDto.Email,
-                        Account = account 
+                        Account = account
                     };
                     _context.Contacts.Add(newContact);
                 }
@@ -114,10 +116,9 @@ namespace CustomerManagementAPI.Controllers
             return CreatedAtAction(nameof(GetAccount), new { id = account.Id }, createdAccountDto);
         }
 
-
+        [HttpDelete("{name}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [HttpDelete("{name}")]
         public async Task<IActionResult> DeleteAccount(string name)
         {
             var account = await _context.Accounts
@@ -131,7 +132,6 @@ namespace CustomerManagementAPI.Controllers
 
             var incidentName = account.IncidentName;
 
-            
             _context.Accounts.Remove(account);
             await _context.SaveChangesAsync();
 
@@ -141,15 +141,13 @@ namespace CustomerManagementAPI.Controllers
             if (remainingAccountsCount == 0 && incidentName != null)
             {
                 return RedirectToAction(
-                    actionName: "DeleteIncident",    
-                    controllerName: "Incident",      
-                    routeValues: new { id = incidentName } 
+                    actionName: "DeleteIncident",
+                    controllerName: "Incident",
+                    routeValues: new { id = incidentName }
                 );
             }
 
             return NoContent();
         }
-
-
     }
 }
