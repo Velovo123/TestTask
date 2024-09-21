@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CustomerManagementAPI.Data;
+namespace CustomerManagementAPI.Models;
 
 public class Contact : BaseEntity
 {

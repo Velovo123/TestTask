@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CustomerManagementAPI.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace CustomerManagementAPI.Data
 {
@@ -13,19 +14,6 @@ namespace CustomerManagementAPI.Data
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
             base.OnModelCreating(modelBuilder);
         }
-
-        public override int SaveChanges()
-        {
-            foreach (var entry in ChangeTracker.Entries<Incident>())
-            {
-                if (entry.State == EntityState.Added && string.IsNullOrEmpty(entry.Entity.IncidentName))
-                {
-                    entry.Entity.IncidentName = $"INC-{DateTime.UtcNow:MM/dd/yyyyHH:mm:ss}";  
-                }
-            }
-            return base.SaveChanges();
-        }
-
         public DbSet<Account> Accounts { get; set; }
         public DbSet<Contact> Contacts { get; set; }
         public DbSet<Incident> Incidents { get; set; }
