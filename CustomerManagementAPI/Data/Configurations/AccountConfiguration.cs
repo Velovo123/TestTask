@@ -12,7 +12,7 @@ namespace CustomerManagementAPI.Data.Configurations
                    .WithMany(i => i.Accounts)
                    .HasForeignKey(a => a.IncidentName) 
                    .HasPrincipalKey(i => i.IncidentName) 
-                   .OnDelete(DeleteBehavior.Cascade); 
+                   .OnDelete(DeleteBehavior.SetNull); 
 
             builder.HasData(
                 new Account

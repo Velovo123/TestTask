@@ -51,7 +51,8 @@ namespace CustomerManagementAPI.Controllers
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> CreateAccount(AccountDTO request)
         {
             if (request.Contacts == null || !request.Contacts.Any())
@@ -59,7 +60,17 @@ namespace CustomerManagementAPI.Controllers
                 return BadRequest("Account must have at least one contact.");
             }
 
+            var existingAccount = await _context.Accounts
+                    .FirstOrDefaultAsync(a => a.Name == request.Name);
+
+            if (existingAccount != null)
+            {
+                return Conflict($"An account with the name '{request.Name}' already exists.");
+            }
+
+
             var account = new Account { Name = request.Name };
+            _context.Accounts.Add(account);
 
             foreach (var contactDto in request.Contacts)
             {
@@ -68,7 +79,21 @@ namespace CustomerManagementAPI.Controllers
 
                 if (existingContact != null)
                 {
-                    existingContact.Account = account;
+                    var isContactLinked = await _context.Accounts
+                        .AnyAsync(a => a.Contacts.Any(c => c.Email == contactDto.Email));
+
+                    if (isContactLinked)
+                    {
+                        return Conflict($"The contact with email {contactDto.Email} is already linked to another account.");
+                    }
+
+                    if (existingContact.FirstName != contactDto.FirstName || existingContact.LastName != contactDto.LastName)
+                    {
+                        existingContact.FirstName = contactDto.FirstName;
+                        existingContact.LastName = contactDto.LastName;
+                    }
+
+                    existingContact.Account = account; 
                 }
                 else
                 {
@@ -77,13 +102,12 @@ namespace CustomerManagementAPI.Controllers
                         FirstName = contactDto.FirstName,
                         LastName = contactDto.LastName,
                         Email = contactDto.Email,
-                        Account = account
+                        Account = account 
                     };
                     _context.Contacts.Add(newContact);
                 }
             }
 
-            _context.Accounts.Add(account);
             await _context.SaveChangesAsync();
 
             var createdAccountDto = _mapper.Map<AccountDTO>(account);
@@ -91,21 +115,41 @@ namespace CustomerManagementAPI.Controllers
         }
 
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAccount(string id)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpDelete("{name}")]
+        public async Task<IActionResult> DeleteAccount(string name)
         {
             var account = await _context.Accounts
-                .FirstOrDefaultAsync(a => a.Name == id);
+                .Include(a => a.Contacts)
+                .FirstOrDefaultAsync(a => a.Name == name);
 
             if (account == null)
             {
                 return NotFound("Account not found.");
             }
 
+            var incidentName = account.IncidentName;
+
+            
             _context.Accounts.Remove(account);
             await _context.SaveChangesAsync();
 
+            var remainingAccountsCount = await _context.Accounts
+                .CountAsync(a => a.IncidentName == incidentName);
+
+            if (remainingAccountsCount == 0 && incidentName != null)
+            {
+                return RedirectToAction(
+                    actionName: "DeleteIncident",    
+                    controllerName: "Incident",      
+                    routeValues: new { id = incidentName } 
+                );
+            }
+
             return NoContent();
         }
+
+
     }
 }

@@ -12,5 +12,6 @@ public class Incident
     [Required]
     public string Description { get; set; } = null!;
 
-    public ICollection<Account> Accounts { get; set; } = null!;
+    [Required]
+    public required ICollection<Account> Accounts { get; set; }
 }

@@ -70,7 +70,8 @@ namespace CustomerManagementAPI.Controllers
 
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetIncident", new { id = incident.IncidentName }, incident);
+            var incidentDto = _mapper.Map<IncidentDTO>(incident);
+            return CreatedAtAction("GetIncident", new { id = incident.IncidentName }, incidentDto);
         }
 
         [HttpGet]
@@ -114,6 +115,14 @@ namespace CustomerManagementAPI.Controllers
             if (incident == null)
             {
                 return NotFound("Incident not found.");
+            }
+
+            if (incident.Accounts != null)
+            {
+                foreach (var account in incident.Accounts)
+                {
+                    account.IncidentName = null;
+                }
             }
 
             _context.Incidents.Remove(incident);

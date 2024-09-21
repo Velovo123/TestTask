@@ -14,8 +14,9 @@ namespace CustomerManagementAPI.Data
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
             base.OnModelCreating(modelBuilder);
         }
-        public DbSet<Account> Accounts { get; set; }
+
         public DbSet<Contact> Contacts { get; set; }
+        public DbSet<Account> Accounts { get; set; }  
         public DbSet<Incident> Incidents { get; set; }
     }
 }

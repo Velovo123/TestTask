@@ -4,6 +4,7 @@ using CustomerManagementAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CustomerManagementAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240921133418_SomeFixes")]
+    partial class SomeFixes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -65,7 +68,7 @@ namespace CustomerManagementAPI.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("AccountId")
+                    b.Property<Guid>("AccountId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Email")
@@ -89,7 +92,7 @@ namespace CustomerManagementAPI.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("12cd75ac-75cb-484c-a9ab-8475cb25c543"),
+                            Id = new Guid("857bb6a9-3f52-47e3-b9e4-01e036cbe828"),
                             AccountId = new Guid("0442326b-5e02-4d78-948f-b30e743a9d0e"),
                             Email = "john.doe@example.com",
                             FirstName = "John",
@@ -97,7 +100,7 @@ namespace CustomerManagementAPI.Migrations
                         },
                         new
                         {
-                            Id = new Guid("89a81881-4eb3-4521-9459-6bed2e60efa8"),
+                            Id = new Guid("60b380d5-ce16-498d-88e6-52b564d4ffb9"),
                             AccountId = new Guid("675895dc-8d7a-485a-9abd-37125a5fa7d2"),
                             Email = "jane.doe@example.com",
                             FirstName = "Jane",
@@ -136,7 +139,7 @@ namespace CustomerManagementAPI.Migrations
                     b.HasOne("CustomerManagementAPI.Models.Incident", "Incident")
                         .WithMany("Accounts")
                         .HasForeignKey("IncidentName")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Incident");
                 });
@@ -145,7 +148,9 @@ namespace CustomerManagementAPI.Migrations
                 {
                     b.HasOne("CustomerManagementAPI.Models.Account", "Account")
                         .WithMany("Contacts")
-                        .HasForeignKey("AccountId");
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Account");
                 });

@@ -14,7 +14,7 @@ public class Contact : BaseEntity
     [EmailAddress]
     public string Email { get; set; } = null!;
 
-    public Account? Account { get; set; }
-    public Guid AccountId { get; set; }
+    public Account Account { get; set; } = null!;
+    public Guid? AccountId { get; set; }
 
 }
