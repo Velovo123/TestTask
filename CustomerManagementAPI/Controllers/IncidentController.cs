@@ -21,6 +21,7 @@ namespace CustomerManagementAPI.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -38,6 +39,16 @@ namespace CustomerManagementAPI.Controllers
             if (account == null)
             {
                 return NotFound("Account not found.");
+            }
+
+            var existingIncident = await _context.Incidents
+                .Where(i => i.Accounts.Any(a => a.Name == request.AccountName))
+                .Select(i => i.IncidentName)
+                .FirstOrDefaultAsync();
+
+            if (existingIncident != null)
+            {
+                return Conflict($"The account '{request.AccountName}' is already linked to the incident '{existingIncident}'.");
             }
 
             var contact = await _context.Contacts

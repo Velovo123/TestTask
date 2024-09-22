@@ -33,15 +33,15 @@ namespace CustomerManagementAPI.Controllers
             return Ok(accountsDto);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{name}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetAccount(string id)
+        public async Task<IActionResult> GetAccount(string name)
         {
             var account = await _context.Accounts
                 .Include(a => a.Contacts)
                 .Include(a => a.Incident)
-                .FirstOrDefaultAsync(a => a.Name == id);
+                .FirstOrDefaultAsync(a => a.Name == name);
 
             if (account == null)
             {
