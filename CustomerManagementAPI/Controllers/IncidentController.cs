@@ -26,7 +26,6 @@ namespace CustomerManagementAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PostIncident(IncidentCreateDTO request)
         {
-            // Check if request is valid
             if (string.IsNullOrWhiteSpace(request.IncidentDescription))
             {
                 return BadRequest("Incident description is required.");
@@ -119,8 +118,10 @@ namespace CustomerManagementAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteIncident(string id)
         {
+            var decodedId = System.Net.WebUtility.UrlDecode(id);
+
             var incident = await _context.Incidents
-                .FirstOrDefaultAsync(i => i.IncidentName == id);
+                .FirstOrDefaultAsync(i => i.IncidentName == decodedId);
 
             if (incident == null)
             {
@@ -148,13 +149,14 @@ namespace CustomerManagementAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdateIncident(string id, UpdateIncidentDTO request)
         {
+            var decodedId = System.Net.WebUtility.UrlDecode(id);
             if (string.IsNullOrWhiteSpace(request.Description))
             {
                 return BadRequest("Description cannot be empty.");
             }
 
             var incident = await _context.Incidents
-                .FirstOrDefaultAsync(i => i.IncidentName == id);
+                .FirstOrDefaultAsync(i => i.IncidentName == decodedId);
 
             if (incident == null)
             {
