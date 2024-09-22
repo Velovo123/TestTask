@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CustomerManagementAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240921151627_FixMigration")]
-    partial class FixMigration
+    [Migration("20240922081535_ConfigureMigration")]
+    partial class ConfigureMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -51,13 +51,11 @@ namespace CustomerManagementAPI.Migrations
                         new
                         {
                             Id = new Guid("0442326b-5e02-4d78-948f-b30e743a9d0e"),
-                            IncidentName = "INC001",
                             Name = "Account1"
                         },
                         new
                         {
                             Id = new Guid("675895dc-8d7a-485a-9abd-37125a5fa7d2"),
-                            IncidentName = "INC002",
                             Name = "Account2"
                         });
                 });
@@ -73,15 +71,18 @@ namespace CustomerManagementAPI.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 
@@ -92,7 +93,7 @@ namespace CustomerManagementAPI.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("12cd75ac-75cb-484c-a9ab-8475cb25c543"),
+                            Id = new Guid("d9e902be-00b7-49b0-9802-c5d214119254"),
                             AccountId = new Guid("0442326b-5e02-4d78-948f-b30e743a9d0e"),
                             Email = "john.doe@example.com",
                             FirstName = "John",
@@ -100,7 +101,7 @@ namespace CustomerManagementAPI.Migrations
                         },
                         new
                         {
-                            Id = new Guid("89a81881-4eb3-4521-9459-6bed2e60efa8"),
+                            Id = new Guid("0fb62a27-a254-42f4-a7bf-415718782228"),
                             AccountId = new Guid("675895dc-8d7a-485a-9abd-37125a5fa7d2"),
                             Email = "jane.doe@example.com",
                             FirstName = "Jane",
@@ -115,23 +116,12 @@ namespace CustomerManagementAPI.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.HasKey("IncidentName");
 
                     b.ToTable("Incidents");
-
-                    b.HasData(
-                        new
-                        {
-                            IncidentName = "INC001",
-                            Description = "Initial Incident 1"
-                        },
-                        new
-                        {
-                            IncidentName = "INC002",
-                            Description = "Initial Incident 2"
-                        });
                 });
 
             modelBuilder.Entity("CustomerManagementAPI.Models.Account", b =>

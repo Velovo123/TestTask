@@ -29,13 +29,11 @@ namespace CustomerManagementAPI.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("IncidentName")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
@@ -50,13 +48,11 @@ namespace CustomerManagementAPI.Migrations
                         new
                         {
                             Id = new Guid("0442326b-5e02-4d78-948f-b30e743a9d0e"),
-                            IncidentName = "INC001",
                             Name = "Account1"
                         },
                         new
                         {
                             Id = new Guid("675895dc-8d7a-485a-9abd-37125a5fa7d2"),
-                            IncidentName = "INC002",
                             Name = "Account2"
                         });
                 });
@@ -94,7 +90,7 @@ namespace CustomerManagementAPI.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("3536776d-5684-449b-9b77-d9aafa3a77b8"),
+                            Id = new Guid("d9e902be-00b7-49b0-9802-c5d214119254"),
                             AccountId = new Guid("0442326b-5e02-4d78-948f-b30e743a9d0e"),
                             Email = "john.doe@example.com",
                             FirstName = "John",
@@ -102,7 +98,7 @@ namespace CustomerManagementAPI.Migrations
                         },
                         new
                         {
-                            Id = new Guid("815ac4bf-9465-41d5-9b55-8290ab2319f3"),
+                            Id = new Guid("0fb62a27-a254-42f4-a7bf-415718782228"),
                             AccountId = new Guid("675895dc-8d7a-485a-9abd-37125a5fa7d2"),
                             Email = "jane.doe@example.com",
                             FirstName = "Jane",
@@ -113,8 +109,7 @@ namespace CustomerManagementAPI.Migrations
             modelBuilder.Entity("CustomerManagementAPI.Models.Incident", b =>
                 {
                     b.Property<string>("IncidentName")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Description")
                         .IsRequired()

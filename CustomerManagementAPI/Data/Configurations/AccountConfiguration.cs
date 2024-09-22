@@ -19,13 +19,11 @@ namespace CustomerManagementAPI.Data.Configurations
                 {
                     Id = new Guid("0442326b-5e02-4d78-948f-b30e743a9d0e"),
                     Name = "Account1",
-                    IncidentName = "INC001"
                 },
                 new Account
                 {
                     Id = new Guid("675895dc-8d7a-485a-9abd-37125a5fa7d2"),
                     Name = "Account2",
-                    IncidentName = "INC002"
                 }
             );
         }

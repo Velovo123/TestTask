@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace CustomerManagementAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class ConfigureMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,7 +17,8 @@ namespace CustomerManagementAPI.Migrations
                 name: "Incidents",
                 columns: table => new
                 {
-                    IncidentName = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    IncidentName = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -28,8 +31,7 @@ namespace CustomerManagementAPI.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    IncidentName = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    IncidentId = table.Column<int>(type: "int", nullable: false)
+                    IncidentName = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -39,7 +41,7 @@ namespace CustomerManagementAPI.Migrations
                         column: x => x.IncidentName,
                         principalTable: "Incidents",
                         principalColumn: "IncidentName",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateTable(
@@ -47,8 +49,10 @@ namespace CustomerManagementAPI.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ContactName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AccountId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    FirstName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    AccountId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -57,8 +61,25 @@ namespace CustomerManagementAPI.Migrations
                         name: "FK_Contacts_Accounts_AccountId",
                         column: x => x.AccountId,
                         principalTable: "Accounts",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.InsertData(
+                table: "Accounts",
+                columns: new[] { "Id", "IncidentName", "Name" },
+                values: new object[,]
+                {
+                    { new Guid("0442326b-5e02-4d78-948f-b30e743a9d0e"), null, "Account1" },
+                    { new Guid("675895dc-8d7a-485a-9abd-37125a5fa7d2"), null, "Account2" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Contacts",
+                columns: new[] { "Id", "AccountId", "Email", "FirstName", "LastName" },
+                values: new object[,]
+                {
+                    { new Guid("0fb62a27-a254-42f4-a7bf-415718782228"), new Guid("675895dc-8d7a-485a-9abd-37125a5fa7d2"), "jane.doe@example.com", "Jane", "Doe" },
+                    { new Guid("d9e902be-00b7-49b0-9802-c5d214119254"), new Guid("0442326b-5e02-4d78-948f-b30e743a9d0e"), "john.doe@example.com", "John", "Doe" }
                 });
 
             migrationBuilder.CreateIndex(
